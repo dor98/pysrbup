@@ -23,13 +23,10 @@ class BackupTool:
             with open(file_to_backup) as rf, open(backup_file, 'w') as wf:
                 data = rf.read()
                 wf.write(data)
-                rf.close()
-                wf.close()
-        
+
         with open(self.meta_data, 'a+') as mf:
             writer = csv.writer(mf)
             writer.writerow([backup_id] + [desc] + [time.asctime(time.gmtime())])
-            mf.close()
         
         print('Backup has completed!')
          
@@ -50,8 +47,6 @@ class BackupTool:
             with open(file_to_restore) as rf, open(restore_to_file, 'w') as wf:
                 data = rf.read()
                 wf.write(data)
-                rf.close()
-                wf.close()
         
         print('Backup {} has been restored'.format(id))
 
