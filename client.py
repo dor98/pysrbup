@@ -8,7 +8,6 @@ import pickle
 import hashlib
 
 class Node:
-
     def __init__(self, filetype, name, children=None, codes=None):  
         if children is None:
             children = []  
@@ -22,7 +21,6 @@ class Node:
 BLOCK_SIZE = 100
 
 class BackupTool:
-    
     def __init__(self):
         self.backups_folder = r'C:\Users\dorse\OneDrive\Desktop\backups'
         self.meta_data = os.path.join(self.backups_folder, 'meta.csv')
