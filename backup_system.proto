@@ -1,0 +1,74 @@
+syntax = 'proto3';
+
+package backup;
+
+service Backup {
+    rpc UploadBackup(UploadBackupRequest) returns (UploadBackupResponse);
+    rpc AddBlocks(AddBlocksRequest) returns (AddBlocksResponse);
+    rpc GetBackup(GetBackupRequest) returns (GetBackupResponse);   
+    rpc GetBlocks(GetBlocksRequest) returns (GetBlocksResponse);
+    rpc DeleteBackup(DeleteBackupRequest) returns (DeleteBackupResponse);
+    rpc UpdateDict(UpdateDictRequest) returns (UpdateDictResponse);
+    rpc ListBackups(ListBackupsRequest) returns (ListBackupsResponse);
+}
+
+
+message UploadBackupRequest {
+    string id = 1;
+    bytes data = 2;
+    repeated string codes = 3;
+}
+
+message UploadBackupResponse {
+    repeated string codes = 1;
+}
+
+message AddBlocksRequest {
+    repeated Block blocks = 1;
+}
+
+message Block {
+    string code = 1;
+    bytes data = 2;
+}
+
+message AddBlocksResponse {}
+
+message GetBackupRequest {
+    string id = 1;
+}
+
+message GetBackupResponse {
+    bytes data = 1;
+}
+
+message GetBlocksRequest {
+    repeated string codes = 1;
+}
+
+message GetBlocksResponse {
+    repeated Block blocks = 1;
+}
+
+message DeleteBackupRequest {
+    string id = 1;
+}
+
+message DeleteBackupResponse {
+    bytes data = 1;
+}
+
+message UpdateDictRequest {
+    repeated string codes = 1;
+}
+
+message UpdateDictResponse {}
+
+message ListBackupsRequest {}
+
+message ListBackupsResponse {
+    repeated Row rows = 1;
+}
+message Row {
+    repeated string col = 1;
+}
