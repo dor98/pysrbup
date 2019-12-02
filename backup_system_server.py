@@ -1,6 +1,6 @@
 import grpc
 from backup_system_pb2_grpc import add_BackupServicer_to_server
-from backup_system_pb2 import UploadBackupResponse, AddBlocksResponse, GetBackupResponse, Block, GetBlocksResponse, DeleteBackupResponse, Row, UpdateDictResponse, ListBackupsResponse
+from backup_system_pb2 import UploadBackupResponse, GetMissingCodesResponse, PushBlocksResponse, GetBackupResponse, Block, GetBlocksResponse, DeleteBackupResponse, UpdateDictResponse, Row, ListBackupsResponse
 from concurrent import futures
 import os
 import csv
@@ -8,6 +8,7 @@ import pickle
 import time
 import shutil
 import argparse
+from threading import Thread, active_count
 
 
 class BackupServicer():
@@ -27,21 +28,24 @@ class BackupServicer():
             f.write(request.data)
         with open(self.meta_file, 'a') as f:
             writer = csv.writer(f)
-            writer.writerow([request.id, time.asctime(time.gmtime())])     
-        missing_codes = []      
-        for code in request.codes:        
+            writer.writerow([request.id, time.asctime(time.gmtime())])
+        return UploadBackupResponse()
+    
+    def GetMissingCodes(self, request, context):
+        missing_codes = []     
+        for code in request.codes:       
             if code not in self.dictionary:
                 missing_codes.append(code)     
             else:
-                self.dictionary[code][1] += 1    
-        return UploadBackupResponse(codes=missing_codes)
-        
-    def AddBlocks(self, request, context):  
+                self.dictionary[code][1] += 1
+        return GetMissingCodesResponse(codes=missing_codes)
+       
+    def PushBlocks(self, request, context):  
         for block in request.blocks:
-            self.dictionary[block.code] = [block.data, 1] 
+            self.dictionary[block.code] = [block.data, 1]
         with open(self.dictionary_file, 'wb') as d:
-            pickle.dump(self.dictionary, d) 
-        return AddBlocksResponse()
+            pickle.dump(self.dictionary, d)
+        return PushBlocksResponse()
 
     def GetBackup(self, request, context):
         if not request.id in os.listdir(self.backups_dir):
@@ -118,18 +122,14 @@ def create_meta_file(root_path):
 
 def serve():
     args = create_args_parser().parse_args()
-    backups_dir = args.backups_dir
-    server = grpc.server(futures.ThreadPoolExecutor())
-    
+    backups_dir = args.backups_dir    
     if 'dictionary' not in os.listdir(backups_dir):
-        dictionary_file = create_dictionary(backups_dir)
-    
+        dictionary_file = create_dictionary(backups_dir)   
     else:
-        dictionary_file = os.path.join(backups_dir, 'dictionary')
-    
+        dictionary_file = os.path.join(backups_dir, 'dictionary')   
     if 'meta.csv' not in os.listdir(backups_dir):
-        create_meta_file(backups_dir)
-    
+        create_meta_file(backups_dir)  
+    server = grpc.server(futures.ThreadPoolExecutor())
     add_BackupServicer_to_server(BackupServicer(backups_dir, dictionary_file), server)
     server.add_insecure_port('[::]:50051')
     server.start()

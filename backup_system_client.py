@@ -1,12 +1,14 @@
 import grpc
-from backup_system_pb2 import UploadBackupRequest, Block, AddBlocksRequest, GetBackupRequest, GetBlocksRequest, DeleteBackupRequest, UpdateDictRequest, ListBackupsRequest
+from backup_system_pb2 import UpdateDictRequest, ListBackupsRequest, UploadBackupRequest, GetMissingCodesRequest, PushBlocksRequest, Block, GetBackupRequest, GetBlocksRequest, DeleteBackupRequest
 import sys
 import os
 import uuid 
 import time
 import pickle
 import hashlib
+from threading import Thread
 from cryptography.fernet import Fernet
+from queue import Queue
 
 class Node:
     def __init__(self, filetype, name, children=None, codes=None):  
@@ -19,33 +21,60 @@ class Node:
         self.children = children
         self.codes = codes
 
-BLOCK_SIZE = 100
+BLOCK_SIZE = 200
+MORE_WORK = False
 
 class BackupClient:
-    
+
     def __init__(self, stub):
         self.stub = stub
 
     def upload_backup(self, path, key):
         backup_id = str(uuid.uuid4())
-        codes = []
+        q = Queue()
         codes_dict = {}
         f = Fernet(key)
-        serialized_data = pickle.dumps(self.build_structure(path, codes, codes_dict))
+        global MORE_WORK
+        MORE_WORK = True
+        threads = []   
+        for _ in range(1):
+            thread = Thread(target=self.update_missing_blocks, args=(codes_dict, q, f))
+            thread.start()
+            threads.append(thread) 
+        data = self.build_structure(path, codes_dict, q)
+        MORE_WORK = False
+        serialized_data = pickle.dumps(data)
         encrypted_data = f.encrypt(serialized_data)
-        upload_backup_request = UploadBackupRequest(id=backup_id, data=encrypted_data, codes=codes)
-        missing_codes = self.stub.UploadBackup(upload_backup_request).codes
-        self.add_blocks(missing_codes, codes_dict, f)
-        print('Completed backup!\nBackup id: {}'.format(backup_id))
+        upload_backup_request = UploadBackupRequest(id=backup_id, data=encrypted_data)
+        self.stub.UploadBackup(upload_backup_request)
+        for thread in threads:
+            thread.join()   
+        print('Completed backup id: {}'.format(backup_id))
         return backup_id
 
-    def build_structure(self, root_path, codes, codes_dict):
+    def update_missing_blocks(self, codes_dict, queue, fernet_object):      
+        codes = []
+        while MORE_WORK or not queue.empty():
+            codes.append(queue.get())
+            if queue.empty() and codes:
+                missing_codes = self.stub.GetMissingCodes(GetMissingCodesRequest(codes=codes)).codes
+                self.push_blocks(missing_codes, codes_dict, fernet_object)    
+    
+    def push_blocks(self, missing_codes, codes_dict, fernet_object):
+        blocks = []
+        for code in missing_codes:
+            block_data = codes_dict[code] 
+            encrypted_block_data = fernet_object.encrypt(block_data)    
+            blocks.append(Block(code=code, data=encrypted_block_data))
+        self.stub.PushBlocks(PushBlocksRequest(blocks=blocks))
+          
+    def build_structure(self, root_path, codes_dict, queue):       
         root_name = os.path.basename(os.path.realpath(root_path))
         root_node = Node('folder', root_name) 
         for child in os.listdir(root_path):
             child_path = os.path.join(root_path, child)
             if os.path.isdir(child_path):
-                root_node.children.append(self.build_structure(child_path, codes, codes_dict))
+                root_node.children.append(self.build_structure(child_path, codes_dict, queue))
             else:
                 child_node = Node('file', child)
                 root_node.children.append(child_node) 
@@ -57,19 +86,10 @@ class BackupClient:
                         hash_function = hashlib.sha256()
                         hash_function.update(block)
                         code = hash_function.hexdigest()
-                        codes.append(code)
                         codes_dict[code] = block
                         child_node.codes.append(code) 
+                        queue.put(code)              
         return root_node
-        
-    def add_blocks(self, missing_codes, codes_dict, fernet_object):   
-        missing_blocks = []
-        for code in missing_codes:
-            block_data = codes_dict[code] 
-            encrypted_block_data = fernet_object.encrypt(block_data)    
-            missing_blocks.append(Block(code=code, data=encrypted_block_data))
-        add_blocks_request = AddBlocksRequest(blocks=missing_blocks)
-        self.stub.AddBlocks(add_blocks_request)
     
     def restore_backup(self, id, restore_to_path, key):
         get_backup_request = GetBackupRequest(id=id)
@@ -91,10 +111,10 @@ class BackupClient:
                 codes = []
                 for code in child.codes:
                     codes.append(code)
-                get_blocks_request = GetBlocksRequest(codes=codes)
-                get_blocks_response = self.stub.GetBlocks(get_blocks_request)
+                request = GetBlocksRequest(codes=codes)
+                response = self.stub.GetBlocks(request)
                 with open(file_path, 'wb') as f:
-                    for block in get_blocks_response.blocks:
+                    for block in response.blocks:
                         decrypted_block = fernet_object.decrypt(block.data)
                         f.write(decrypted_block)
     
