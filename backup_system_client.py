@@ -1,14 +1,22 @@
-import grpc
-from backup_system_pb2 import UpdateDictRequest, ListBackupsRequest, UploadBackupRequest, GetMissingCodesRequest, PushBlocksRequest, Block, GetBackupRequest, GetBlocksRequest, DeleteBackupRequest
+# STANDRAD LIBRARY
 import sys
 import os
-import uuid 
+import uuid
 import time
 import pickle
 import hashlib
 import threading
 from cryptography.fernet import Fernet
 from queue import Queue
+
+# THIRD PARTY
+import grpc
+
+# LOCAL
+from backup_system_pb2 import (UpdateDictRequest, ListBackupsRequest, 
+                                UploadBackupRequest, GetMissingCodesRequest, 
+                                PushBlocksRequest, Block, GetBackupRequest, 
+                                GetBlocksRequest, DeleteBackupRequest)
 
 BLOCK_SIZE = 1000
 
