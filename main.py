@@ -1,10 +1,14 @@
+# STANDARD LIBRARY
 import argparse 
 import sys
-import grpc
 import os
-import logging
-import backup_system_client
-import backup_system_pb2, backup_system_pb2_grpc
+
+# THIRS PARTY
+import grpc
+
+# LOCAL
+from backup_system_client import BackupClient
+from backup_system_pb2_grpc import BackupStub
 
 def create_args_parser():
     parser = argparse.ArgumentParser()
@@ -33,8 +37,8 @@ def create_args_parser():
 def main():
     args = create_args_parser().parse_args()
     with grpc.insecure_channel(args.server_address) as channel:
-        stub = backup_system_pb2_grpc.BackupStub(channel)
-        client = backup_system_client.BackupClient(stub)
+        stub = BackupStub(channel)
+        client = BackupClient(stub)
 
         if args.command == 'backup':
             client.upload_backup(args.path, args.key, args.num_of_threads)
