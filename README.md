@@ -1,4 +1,4 @@
-# Backup System
+# Secure Backup System
 
 Command line app for remote, encrypted, compressed backups.
 
@@ -23,7 +23,7 @@ First, you need to set up the server to run on the machine you want your backups
 ### Server
 
 ```sh
-python backup_system_server.py --bind-to=localhost:50000 <backups_dir>
+python backup_system_server.py --bind-to=localhost:50000 --num-of-threads=2 <backups_dir>
 ```
 
 ### Client
@@ -33,25 +33,25 @@ The commands below use `localhost:50000` as the server address. Replace it with 
 #### Creating a backup
 
 ```sh
-python main.py --server-address=localhost:50000 backup <backup_dir> <key_file>
+python main.py --server-address=localhost:50000 --num-of-threads=2 backup <backup_dir> <key_file>
 ```
 
 #### Restoring a backup
 
 ```sh
-python main.py --server-address=localhost:50000 restore <backup_id> <restore_dir> <key_file>
+python main.py --server-address=localhost:50000 --num-of-threads=2 restore <backup_id> <restore_dir> <key_file>
 ```
 
 #### Deleting a backup
 
 ```sh
-python main.py --server-address=localhost:50000 delete <backup_id> <key_file>
+python main.py --server-address=localhost:50000 --num-of-threads=2 delete <backup_id> <key_file>
 ```
 
 #### Listing backups
 
 ```sh
-python main.py --server-address=localhost:50000 list
+python main.py --server-address=localhost:50000 --num-of-threads=2 list
 ```
 
 #### Generating an encryption key
@@ -88,7 +88,7 @@ These limitations are being worked on and expected to be removed in the near fut
 - Every file is split to chunks by the client. Identical chunks are only stored once in the server.
 - Before exchanging any data, the client and server are synchronizing what data each of them have, in order to exchange the minimal amount of data needed, which reduces load from the network and improves the speed of the different operations.
 - Cryptographic key management is done by the user: the client needs access to the key for the different operations, but is not responsible for storing the key.
-- All the data is a backup repository is encrypted with the same key. This enables the system to deduplicate data within a backup and across backups in the same repository, which results in significant storage savings.
+- All the data in a backup repository is encrypted with the same key. This enables the system to deduplicate data within a backup and across backups in the same repository, which results in significant storage savings.
 
 ## Contributing
 
