@@ -7,9 +7,9 @@ from concurrent import futures
 import grpc
 import pytest
 
-from backup_system_client import BackupClient
 from backup_system_pb2_grpc import BackupStub, add_BackupServicer_to_server
-from backup_system_server import BackupServicer, create_dictionary
+from pysrbup.client import BackupClient
+from pysrbup.server import BackupServicer, create_dictionary
 
 OPTIONS = [('grpc.max_send_message_length', 1024**3),
            ('grpc.max_receive_message_length', 1024**3)]
