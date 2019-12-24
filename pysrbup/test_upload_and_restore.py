@@ -8,8 +8,8 @@ import grpc
 import pytest
 
 from backup_system_pb2_grpc import BackupStub, add_BackupServicer_to_server
-from pysrbup.client import BackupClient
-from pysrbup.server import BackupServicer, create_dictionary
+from client import BackupClient
+from server import BackupServicer, create_dictionary
 
 OPTIONS = [('grpc.max_send_message_length', 1024**3),
            ('grpc.max_receive_message_length', 1024**3)]
