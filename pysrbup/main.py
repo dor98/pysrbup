@@ -4,8 +4,8 @@ import sys
 
 import grpc
 
-from client import BackupClient
 from backup_system_pb2_grpc import BackupStub
+from client import BackupClient
 
 
 def create_args_parser():
