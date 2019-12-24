@@ -4,7 +4,7 @@ import sys
 
 import grpc
 
-from backup_system_client import BackupClient
+from pysrbup.client import BackupClient
 from backup_system_pb2_grpc import BackupStub
 
 
