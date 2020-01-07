@@ -1,0 +1,28 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: check-added-large-files
+  - id: check-case-conflict
+  - id: check-executables-have-shebangs
+  - id: check-json
+  - id: check-yaml
+  - id: check-merge-conflict
+  - id: check-symlinks
+  - id: check-vcs-permalinks
+  - id: double-quote-string-fixer
+  - id: end-of-file-fixer
+  - id: fix-encoding-pragma
+    args: [--remove]
+  - id: trailing-whitespace
+- repo: https://github.com/pre-commit/mirrors-pylint
+  rev: v2.4.4
+  hooks:
+  - id: pylint
+    files: 'pysrbup/.*.py'
+    args: ['--disable=C,W0611,import-error', '--reports=n']
+- repo: https://github.com/pre-commit/mirrors-yapf
+  rev: v0.29.0
+  hooks:
+  - id: yapf
+    files: 'pysrbup/.*.py'
