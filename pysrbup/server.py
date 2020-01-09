@@ -1,9 +1,9 @@
+#!/usr/bin/env python3
 import argparse
 import csv
 import os
 import pickle
 import shutil
-import threading
 import time
 from concurrent import futures
 
@@ -17,6 +17,7 @@ from backup_system_pb2_grpc import add_BackupServicer_to_server
 
 
 class BackupServicer():
+
     def __init__(self, backups_dir, dictionary_file):
         self.backups_dir = backups_dir
         self.meta_file = os.path.join(self.backups_dir, 'meta.csv')
@@ -25,6 +26,7 @@ class BackupServicer():
             self.dictionary = pickle.load(f)
 
     def UploadBackup(self, request, context):
+        # pylint: disable=invalid-name,unused-argument
         curr_backup_dir = os.path.join(self.backups_dir, request.id)
         os.mkdir(curr_backup_dir)
         backup_file = os.path.join(curr_backup_dir, 'data.bin')
@@ -36,6 +38,7 @@ class BackupServicer():
         return UploadBackupResponse()
 
     def GetMissingCodes(self, request, context):
+        # pylint: disable=invalid-name,unused-argument
         missing_codes = []
         for code in request.codes:
             if code not in self.dictionary:
@@ -45,21 +48,23 @@ class BackupServicer():
         return GetMissingCodesResponse(codes=missing_codes)
 
     def PushBlocks(self, request, context):
+        # pylint: disable=invalid-name,unused-argument
         for block in request.blocks:
             self.dictionary[block.code] = [block.data, 1]
-        with open(self.dictionary_file, 'wb') as d:
-            pickle.dump(self.dictionary, d)
+        with open(self.dictionary_file, 'wb') as f:
+            pickle.dump(self.dictionary, f)
         return PushBlocksResponse()
 
     def GetBackup(self, request, context):
+        # pylint: disable=invalid-name,unused-argument
         if not request.id in os.listdir(self.backups_dir):
             return GetBackupResponse()
-        file_to_restore = os.path.join(self.backups_dir, request.id,
-                                       'data.bin')
+        file_to_restore = os.path.join(self.backups_dir, request.id, 'data.bin')
         with open(file_to_restore, 'rb') as f:
             data = f.read()
         return GetBackupResponse(data=data)
 
+    # pylint: disable=invalid-name,unused-argument
     def GetBlocks(self, request, context):
         blocks = []
         for code in request.codes:
@@ -68,6 +73,7 @@ class BackupServicer():
         return GetBlocksResponse(blocks=blocks)
 
     def DeleteBackup(self, request, context):
+        # pylint: disable=invalid-name,unused-argument
         if request.id not in os.listdir(self.backups_dir):
             return GetBackupResponse()
         backup_dir_to_delete = os.path.join(self.backups_dir, request.id)
@@ -87,6 +93,7 @@ class BackupServicer():
         return DeleteBackupResponse(data=data)
 
     def UpdateDict(self, request, context):
+        # pylint: disable=invalid-name,unused-argument
         for code in request.codes:
             if self.dictionary[code][1] == 1:
                 del self.dictionary[code]
@@ -97,6 +104,7 @@ class BackupServicer():
         return UpdateDictResponse()
 
     def ListBackups(self, request, context):
+        # pylint: disable=invalid-name,unused-argument
         with open(self.meta_file, 'r') as mf:
             rows = []
             count = 0
@@ -111,15 +119,15 @@ class BackupServicer():
 def create_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--server_address', default='localhost:50000')
-    parser.add_argument('--num_of_threads', default=3)
+    parser.add_argument('--num_threads', default=3)
     parser.add_argument('backups_dir')
     return parser
 
 
 def create_dictionary(root_path):
     dictionary_file = os.path.join(root_path, 'dictionary')
-    with open(dictionary_file, 'wb') as d:
-        pickle.dump({}, d)
+    with open(dictionary_file, 'wb') as f:
+        pickle.dump({}, f)
     return dictionary_file
 
 
@@ -130,23 +138,22 @@ def create_meta_file(root_path):
         writer.writerow(['id', 'creation_time'])
 
 
-def serve():
+def main():
     args = create_args_parser().parse_args()
-    server_address, num_of_threads, backups_dir = args.server_address, args.num_of_threads, args.backups_dir
-    if 'dictionary' not in os.listdir(backups_dir):
-        dictionary_file = create_dictionary(backups_dir)
+    if 'dictionary' not in os.listdir(args.backups_dir):
+        dictionary_file = create_dictionary(args.backups_dir)
     else:
-        dictionary_file = os.path.join(backups_dir, 'dictionary')
-    if 'meta.csv' not in os.listdir(backups_dir):
-        create_meta_file(backups_dir)
+        dictionary_file = os.path.join(args.backups_dir, 'dictionary')
+    if 'meta.csv' not in os.listdir(args.backups_dir):
+        create_meta_file(args.backups_dir)
     server = grpc.server(
-        futures.ThreadPoolExecutor(max_workers=num_of_threads))
-    add_BackupServicer_to_server(BackupServicer(backups_dir, dictionary_file),
-                                 server)
-    server.add_insecure_port(server_address)
+        futures.ThreadPoolExecutor(max_workers=args.num_threads))
+    add_BackupServicer_to_server(
+        BackupServicer(args.backups_dir, dictionary_file), server)
+    server.add_insecure_port(args.server_address)
     server.start()
     server.wait_for_termination()
 
 
 if __name__ == '__main__':
-    serve()
+    main()

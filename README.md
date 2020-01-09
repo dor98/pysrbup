@@ -23,7 +23,7 @@ First, you need to set up the server to run on the machine you want your backups
 ### Server
 
 ```sh
-python backup_system_server.py --bind-to=localhost:50000 --num-of-threads=2 <backups_dir>
+pysrbup-server --bind-to=localhost:50000 --num-of-threads=2 <backups_dir>
 ```
 
 ### Client
@@ -33,31 +33,31 @@ The commands below use `localhost:50000` as the server address. Replace it with 
 #### Creating a backup
 
 ```sh
-python main.py --server-address=localhost:50000 --num-of-threads=2 backup <backup_dir> <key_file>
+pysrbup-client --server-address=localhost:50000 --num-of-threads=2 backup <backup_dir> <key_file>
 ```
 
 #### Restoring a backup
 
 ```sh
-python main.py --server-address=localhost:50000 --num-of-threads=2 restore <backup_id> <restore_dir> <key_file>
+pysrbup-client --server-address=localhost:50000 --num-of-threads=2 restore <backup_id> <restore_dir> <key_file>
 ```
 
 #### Deleting a backup
 
 ```sh
-python main.py --server-address=localhost:50000 --num-of-threads=2 delete <backup_id> <key_file>
+pysrbup-client --server-address=localhost:50000 --num-of-threads=2 delete <backup_id> <key_file>
 ```
 
 #### Listing backups
 
 ```sh
-python main.py --server-address=localhost:50000 --num-of-threads=2 list
+pysrbup-client --server-address=localhost:50000 --num-of-threads=2 list
 ```
 
 #### Generating an encryption key
 
 ```sh
-python main.py generate_key
+pysrbup-client generate_key
 ```
 
 ## Limitations
