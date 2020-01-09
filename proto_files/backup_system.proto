@@ -1,6 +1,6 @@
 syntax = 'proto3';
 
-package backup;
+package pysrbup;
 
 service Backup {
     rpc UploadBackup(UploadBackupRequest) returns (UploadBackupResponse);
