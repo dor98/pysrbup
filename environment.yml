@@ -1,0 +1,17 @@
+name: srbup
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.6
+  - cryptography
+  - virtualenv
+  - pytest
+  - pylint
+  - tox
+  - tox-conda
+  - ipython
+  - pip
+  - pip:
+    - grpcio
+    - grpcio-tools
