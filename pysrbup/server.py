@@ -120,8 +120,8 @@ class BackupServicer():
 
 def create_args_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--server_address', default='localhost:50000')
-    parser.add_argument('--num_threads', default=3)
+    parser.add_argument('--server-address', default='localhost:50000')
+    parser.add_argument('--num-threads', default=3)
     parser.add_argument('backups_dir')
     return parser
 

@@ -168,8 +168,8 @@ class BackupClient:
 
 def create_args_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--server_address', default='localhost:50000')
-    parser.add_argument('--num_of_threads', default=2)
+    parser.add_argument('--server-address', default='localhost:50000')
+    parser.add_argument('--num-threads', default=2)
     subparsers = parser.add_subparsers(dest='command')
     subparsers.required = True
     backup_parser = subparsers.add_parser('backup')
@@ -193,7 +193,7 @@ def main():
         stub = BackupStub(channel)
         client = BackupClient(stub)
         if args.command == 'backup':
-            client.upload_backup(args.path, args.key, args.num_of_threads)
+            client.upload_backup(args.path, args.key, args.num_threads)
         elif args.command == 'restore':
             client.restore_backup(args.id, args.restore_to, args.key)
         elif args.command == 'delete':
