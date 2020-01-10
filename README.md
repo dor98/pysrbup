@@ -1,4 +1,4 @@
-# Secure Backup System
+# pysrbup: remote, encrypted, compressed backups.
 
 Command line app for remote, encrypted, compressed backups.
 
