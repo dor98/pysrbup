@@ -14,7 +14,7 @@ from pysrbup.server import BackupServicer, create_dictionary
 
 OPTIONS = [('grpc.max_send_message_length', 1024**3),
            ('grpc.max_receive_message_length', 1024**3)]
-SERVER_ADDRESS = 'localhost:50000'
+SERVER_ADDRESS = '127.0.0.1:50000'
 THREADS = 2
 
 
