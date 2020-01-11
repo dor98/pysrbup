@@ -32,7 +32,6 @@ setuptools.setup(
     ],
     keywords='backups encryption compression',
     packages=setuptools.find_packages(exclude=['tests']),
-    package_dir={'': '.'},
     package_data={},
     install_requires=[
         'cryptography==2.*,>=2.8.0', 'grpcio==1.*,>=1.26.0',
