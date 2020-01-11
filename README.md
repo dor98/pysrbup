@@ -60,6 +60,13 @@ pysrbup-client --server-address=localhost:50000 --num-of-threads=2 list
 pysrbup-client generate_key
 ```
 
+## Building the project
+
+```sh
+# cd to project directory, create a python 3.6 virtual env and then:
+./tools/build.sh
+```
+
 ## Limitations
 
 The following is a list of known limitations.
