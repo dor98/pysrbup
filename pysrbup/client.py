@@ -9,11 +9,12 @@ import uuid
 import grpc
 from cryptography.fernet import Fernet
 
-from backup_system_pb2 import (Block, DeleteBackupRequest, GetBackupRequest,
-                               GetBlocksRequest, GetMissingCodesRequest,
-                               ListBackupsRequest, PushBlocksRequest,
-                               UpdateDictRequest, UploadBackupRequest)
-from backup_system_pb2_grpc import BackupStub
+from pysrbup.backup_system_pb2 import (Block, DeleteBackupRequest,
+                                       GetBackupRequest, GetBlocksRequest,
+                                       GetMissingCodesRequest,
+                                       ListBackupsRequest, PushBlocksRequest,
+                                       UpdateDictRequest, UploadBackupRequest)
+from pysrbup.backup_system_pb2_grpc import BackupStub
 
 BLOCK_SIZE = 1000
 

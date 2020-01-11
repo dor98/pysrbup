@@ -9,11 +9,13 @@ from concurrent import futures
 
 import grpc
 
-from backup_system_pb2 import (Block, DeleteBackupResponse, GetBackupResponse,
-                               GetBlocksResponse, GetMissingCodesResponse,
-                               ListBackupsResponse, PushBlocksResponse, Row,
-                               UpdateDictResponse, UploadBackupResponse)
-from backup_system_pb2_grpc import add_BackupServicer_to_server
+from pysrbup.backup_system_pb2 import (Block, DeleteBackupResponse,
+                                       GetBackupResponse, GetBlocksResponse,
+                                       GetMissingCodesResponse,
+                                       ListBackupsResponse, PushBlocksResponse,
+                                       Row, UpdateDictResponse,
+                                       UploadBackupResponse)
+from pysrbup.backup_system_pb2_grpc import add_BackupServicer_to_server
 
 
 class BackupServicer():
