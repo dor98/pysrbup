@@ -60,11 +60,21 @@ pysrbup-client --server-address=127.0.0.1:50000 --num-threads=2 list
 pysrbup-client generate-key
 ```
 
-## Building the project
+## Development
+
+### Building
 
 ```sh
 # cd to project directory, create a python 3.6 virtual env and then:
 ./tools/build.sh
+```
+
+### Running tests
+
+Start by building and then run:
+
+```sh
+pytest
 ```
 
 ## Limitations
