@@ -114,7 +114,6 @@ class BackupServicer():
                 if row and count > 0:
                     rows.append(Row(col=row))
                 count += 1
-        print(rows)
         return ListBackupsResponse(rows=rows)
 
 
