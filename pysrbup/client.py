@@ -183,7 +183,7 @@ def create_args_parser():
     delete_backup_parser.add_argument('id')
     delete_backup_parser.add_argument('key')
     subparsers.add_parser('list')
-    subparsers.add_parser('generate_key')
+    subparsers.add_parser('generate-key')
     return parser
 
 
@@ -200,7 +200,7 @@ def main():
             client.delete_backup(args.id, args.key)
         elif args.command == 'list':
             client.list_backups()
-        elif args.command == 'generate_key':
+        elif args.command == 'generate-key':
             client.generate_key()
 
 
