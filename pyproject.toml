@@ -18,7 +18,7 @@ keywords = ['backups', 'encryption', 'compression']
 
 [tool.poetry.dependencies]
 python = '^3.6'
-cryptography = '^2.8'
+cryptography = '^3.2'
 grpcio = '^1.26'
 grpcio-tools = '^1.26'
 
